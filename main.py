@@ -6,6 +6,7 @@ from discord.ext import commands
 from dotenv import load_dotenv
 import os
 import requests
+import hashlib
 
 intents = discord.Intents.default()
 load_dotenv() # This loads the .env variables
@@ -61,12 +62,14 @@ async def on_message(message):
     if message.author == bot.user: # Takes no action if the bot is the author of the message
         return
     if message.content.split()[0] in bot_mention:
-        author = message.author.id # You can provide a unique identifier for individual users to the chatbot using any sort of UUID, I use the Discord user ID in this case
+        author = str(message.author.id).encode() # You can provide a unique identifier for individual users to the chatbot using any sort of UUID, I use the Discord user ID in this case
+        hashed_author = (hashlib.sha256(author)).hexdigest()
+        print(hashed_author)
         adjusted_message = message.content
         for i in bot_mention: # This loop removes the bot mention from the message
             adjusted_message = adjusted_message.replace(i, "")
         adjusted_message = adjusted_message.replace(" ", "%20") # Replace spaces in the user input with %20 (The escape code in URLs for spaces)
-        response = requests.get(f'http://api.brainshop.ai/get?bid=156113&key={api_key}&uid={author}&msg={adjusted_message}').json()
+        response = requests.get(f'http://api.brainshop.ai/get?bid=156113&key={api_key}&uid={hashed_author}&msg={adjusted_message}').json()
         bot_response = response['cnt']
         await message.channel.send(bot_response)
 
