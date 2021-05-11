@@ -8,7 +8,7 @@ import os
 import requests
 
 intents = discord.Intents.default()
-load_dotenv()
+load_dotenv() # This loads the .env variables
 
 
 # Declare bot prefix:
@@ -56,15 +56,16 @@ async def on_ready():
 @bot.event
 async def on_message(message):
     api_key = os.getenv('API_KEY')
-    bot_id = ['<@841383624296497222>', '<@!841383624296497222>', '<@&841383624296497222>']
-    if message.author == bot.user:
+    bot_id = os.getenv('BOT_ID')
+    bot_mention = [f'<@{bot_id}>', f'<@!{bot_id}>', f'<@&{bot_id}>'] # Discord has symbols to indicate how the bot was mentioned, this list should cover all of them
+    if message.author == bot.user: # Takes no action if the bot is the author of the message
         return
-    if message.content.split()[0] in bot_id:
-        author = message.author.id
+    if message.content.split()[0] in bot_mention:
+        author = message.author.id # You can provide a unique identifier for individual users to the chatbot using any sort of UUID, I use the Discord user ID in this case
         adjusted_message = message.content
-        for i in bot_id:
+        for i in bot_mention: # This loop removes the bot mention from the message
             adjusted_message = adjusted_message.replace(i, "")
-        adjusted_message = adjusted_message.replace(" ", "%20")
+        adjusted_message = adjusted_message.replace(" ", "%20") # Replace spaces in the user input with %20 (The escape code in URLs for spaces)
         response = requests.get(f'http://api.brainshop.ai/get?bid=156113&key={api_key}&uid={author}&msg={adjusted_message}').json()
         bot_response = response['cnt']
         await message.channel.send(bot_response)
