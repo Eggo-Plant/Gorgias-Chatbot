@@ -68,7 +68,7 @@ async def on_message(message):
         user_input = message.content
         for i in bot_mention: # This loop removes the bot mention from the message
             user_input = user_input.replace(i, "")
-        adjusted_message = adjusted_message.replace(" ", "%20") # Replace spaces in the user input with %20 (The escape code in URLs for spaces)
+        user_input = user_input.replace(" ", "%20") # Replace spaces in the user input with %20 (The escape code in URLs for spaces)
         response = requests.get(f'http://api.brainshop.ai/get?bid={brain_id}&key={api_key}&uid={hashed_author}&msg={user_input}').json()
         bot_response = response['cnt']
         await message.channel.send(bot_response)
