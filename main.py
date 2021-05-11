@@ -1,6 +1,5 @@
 # ---------- PREPARE DISCORD BOT ---------- #
 
-
 # Load modules and ENV Variables:
 import discord
 from discord.ext import commands
@@ -14,6 +13,7 @@ load_dotenv()
 
 # Declare bot prefix:
 bot = commands.Bot(command_prefix="g!", description='A chat bot by Eggo-Plant', intents=intents, case_insensitive=True)
+
 
 # Add coloring to logs:
 class bcolors:
@@ -46,17 +46,28 @@ async def on_ready():
 
     # Set bot's status
     await bot.change_presence(
-        activity=discord.Activity(type=discord.ActivityType.playing, name="temp prefix"))
+        activity=discord.Activity(type=discord.ActivityType.playing, name="Ping me with a message to talk to me!"))
     print(bcolors.OKCYAN + "[INFO]: " + bcolors.ENDC + bcolors.OKGREEN + "Bot status set! " + bcolors.ENDC)
     print('----------------------------------------------------------------------')  # Just a hyphen seperator
 
-@bot.command(name="chat")
-async def on_message(ctx, *,message):
-    author = ctx.message.author.id
-    adjusted_message = message.replace(" ", "%20")
-    response = requests.get(f'http://api.brainshop.ai/get?bid=156113&key=CF7GocywWwAY6Xut&uid={author}&msg={adjusted_message}').json()
-    bot_response = response['cnt']
-    await ctx.channel.send(bot_response)
+
+# ---------- BOT COMMANDS ---------- #
+
+@bot.event
+async def on_message(message):
+    api_key = os.getenv('API_KEY')
+    bot_id = ['<@841383624296497222>', '<@!841383624296497222>', '<@&841383624296497222>']
+    if message.author == bot.user:
+        return
+    if message.content.split()[0] in bot_id:
+        author = message.author.id
+        adjusted_message = message.content
+        for i in bot_id:
+            adjusted_message = adjusted_message.replace(i, "")
+        adjusted_message = adjusted_message.replace(" ", "%20")
+        response = requests.get(f'http://api.brainshop.ai/get?bid=156113&key={api_key}&uid={author}&msg={adjusted_message}').json()
+        bot_response = response['cnt']
+        await message.channel.send(bot_response)
 
 
 # ---------- IMPORT TOKEN FROM ENV VARIABLE ---------- #
