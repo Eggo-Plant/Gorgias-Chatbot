@@ -67,7 +67,7 @@ async def on_message(message):
         hashed_author = (hashlib.sha256(author)).hexdigest() # Hash the Discord user ID
         user_input = message.content
         for i in bot_mention: # This loop removes the bot mention from the message
-            user_input = adjusted_message.replace(i, "")
+            user_input = user_input.replace(i, "")
         adjusted_message = adjusted_message.replace(" ", "%20") # Replace spaces in the user input with %20 (The escape code in URLs for spaces)
         response = requests.get(f'http://api.brainshop.ai/get?bid={brain_id}&key={api_key}&uid={hashed_author}&msg={user_input}').json()
         bot_response = response['cnt']
