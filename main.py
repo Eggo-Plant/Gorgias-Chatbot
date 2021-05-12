@@ -7,6 +7,8 @@ from dotenv import load_dotenv
 import os
 import requests
 import hashlib
+import asyncio
+import random
 
 intents = discord.Intents.default()
 load_dotenv() # This loads the .env variables
@@ -64,13 +66,15 @@ async def on_message(message):
         return
     if message.content.split()[0] in bot_mention:
         author = str(message.author.id).encode() # You can provide a unique identifier for individual users to the chatbot using any sort of UUID, I use a hashed version of the Discord user ID in this case
-        hashed_author = (hashlib.sha256(author)).hexdigest() # Hash the Discord user ID
         user_input = message.content
+        hashed_author = (hashlib.sha256(author)).hexdigest() # Hash the Discord user ID
         for i in bot_mention: # This loop removes the bot mention from the message
             user_input = user_input.replace(i, "")
         user_input = user_input.replace(" ", "%20") # Replace spaces in the user input with %20 (The escape code in URLs for spaces)
         response = requests.get(f'http://api.brainshop.ai/get?bid={brain_id}&key={api_key}&uid={hashed_author}&msg={user_input}').json()
         bot_response = response['cnt']
+        async with message.channel.typing():
+            await asyncio.sleep(0.5, 2)
         await message.channel.send(bot_response)
 
 
