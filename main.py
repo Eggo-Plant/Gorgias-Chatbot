@@ -62,12 +62,12 @@ async def on_message(message):
     api_key = os.getenv('API_KEY')
     bot_id = os.getenv('BOT_ID')
     bot_mention = [f'<@{bot_id}>', f'<@!{bot_id}>', f'<@&{bot_id}>'] # Discord has symbols to indicate how the bot was mentioned, this list should cover all of them
+    author = str(message.author.id).encode() # You can provide a unique identifier for individual users to the chatbot using any sort of UUID, I use a hashed version of the Discord user ID in this case
+    hashed_author = (hashlib.sha256(author)).hexdigest() # Hash the Discord user ID
     if message.author == bot.user: # Takes no action if the bot is the author of the message
         return
-    if message.content.split()[0] in bot_mention:
-        author = str(message.author.id).encode() # You can provide a unique identifier for individual users to the chatbot using any sort of UUID, I use a hashed version of the Discord user ID in this case
+    if message.content.split()[0] in bot_mention and len(message.content.split()) > 1:
         user_input = message.content
-        hashed_author = (hashlib.sha256(author)).hexdigest() # Hash the Discord user ID
         for i in bot_mention: # This loop removes the bot mention from the message
             user_input = user_input.replace(i, "")
         user_input = user_input.replace(" ", "%20") # Replace spaces in the user input with %20 (The escape code in URLs for spaces)
@@ -76,7 +76,6 @@ async def on_message(message):
         async with message.channel.typing():
             await asyncio.sleep(0.5, 2)
         await message.channel.send(bot_response)
-
 
 # ---------- IMPORT TOKEN FROM ENV VARIABLE ---------- #
 
